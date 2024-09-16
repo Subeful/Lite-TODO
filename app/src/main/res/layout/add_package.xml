@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/alert_tital"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/inter_semibold"
+        android:text="Добавить папку"
+        android:textColor="@color/darkGreen"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/alert_text"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/inter"
+        android:hint="Разное"
+        android:minHeight="48dp"
+        android:outlineProvider="bounds"
+        android:textColor="@color/darkGreen"
+        android:textColorHint="@color/darkGreen" />
+</LinearLayout>
+
+
+
