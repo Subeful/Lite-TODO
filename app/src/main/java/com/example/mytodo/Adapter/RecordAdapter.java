@@ -1,12 +1,19 @@
 package com.example.mytodo.Adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.Preference;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +29,8 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordView
 
     Context context;
     List<PackageModel> list;
+
+
 
     public void setList(List<PackageModel> list) {
         this.list = list;
@@ -40,16 +49,17 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordView
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecordViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecordViewHolder holder, @SuppressLint("RecyclerView") int position) {
 
-        holder.text.setText(list.get(position).getPack_name());
 
         holder.edit.setOnClickListener(view -> {
-
-            list.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, list.size());
+            try {
+                list.remove(position);
+                notifyItemRemoved(position);
+                notifyItemRangeChanged(position, list.size());
+            }catch (Exception e){}
         });
+
         
 
     }
@@ -61,7 +71,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordView
 
     public static final class RecordViewHolder extends RecyclerView.ViewHolder{
 
-        TextView text;
+        EditText text;
         ImageButton edit;
 
         public RecordViewHolder(@NonNull View itemView) {

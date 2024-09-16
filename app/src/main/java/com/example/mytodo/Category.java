@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mytodo.Adapter.CategoryAdapter;
-import com.example.mytodo.Helper.AlertHelper;
 import com.example.mytodo.Model.PackageModel;
 
 import java.util.ArrayList;
@@ -48,20 +47,21 @@ public class Category extends AppCompatActivity {
         });
 
         setUI();
-
         setList();
         setApplicationRecycle(list);
 
     }
     private void setUI(){
-        context = Category.this;
-        recycler = findViewById(R.id.CategoryRecycler);
-        name = findViewById(R.id.categoryNames);
-        name.setText(getIntent().getStringExtra("Package"));
+        try {
+            context = Category.this;
+            recycler = findViewById(R.id.CategoryRecycler);
+            name = findViewById(R.id.categoryNames);
+            name.setText(getIntent().getStringExtra("Package"));
+        }catch (Exception e){Toast.makeText(context, "set UI", Toast.LENGTH_SHORT).show();}
     }
-    public void addPackage(View v){
-        AlertHelper.createAlert(context, list, "Добавить категорию");
-    }
+//    public void addPackage(View v){
+//        AlertHelper.createAlert(context, "Добавить категорию");
+//    }
 
     public static void createNewPackage(EditText userInput){
         if(!userInput.getText().toString().isEmpty()){

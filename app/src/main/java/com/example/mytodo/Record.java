@@ -2,9 +2,9 @@ package com.example.mytodo;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,9 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.mytodo.Adapter.PackageModelAdapter;
 import com.example.mytodo.Adapter.RecordAdapter;
-import com.example.mytodo.Helper.AlertHelper;
 import com.example.mytodo.Model.PackageModel;
 
 import java.util.ArrayList;
@@ -34,6 +32,8 @@ public class Record extends AppCompatActivity {
 
     TextView name;
 
+    public static SharedPreferences preferences;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +45,7 @@ public class Record extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
+        preferences = getSharedPreferences("Record", MODE_PRIVATE);
         context = Record.this;
         recycler = findViewById(R.id.RecordRecycler);
         name = findViewById(R.id.recordNames);
@@ -56,18 +56,11 @@ public class Record extends AppCompatActivity {
 
     @SuppressLint("ResourceAsColor")
     public void addPackage(View v){
-        AlertHelper.createAlert(context, list, "Добавить запись");
-
-
-    }
-    public static void createNewPackage(EditText userInput){
-        if(!userInput.getText().toString().isEmpty()){
-            list.add(new PackageModel(list.size()+1, userInput.getText().toString()));
-            try {
-                adapter.setList(list);
-                recycler.setAdapter(adapter);
-            } catch (Exception e) {}
-        }
+        list.add(new PackageModel(list.size()+1, ""));
+        try {
+            adapter.setList(list);
+            recycler.setAdapter(adapter);
+        } catch (Exception e) {}
     }
 
 
