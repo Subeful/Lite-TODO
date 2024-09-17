@@ -16,9 +16,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mytodo.Category;
 import com.example.mytodo.DB.DbHelper;
 import com.example.mytodo.DB.DbManager;
+import com.example.mytodo.MainActivity;
 import com.example.mytodo.Model.PackageModel;
 import com.example.mytodo.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PackageModelAdapter extends RecyclerView.Adapter<PackageModelAdapter.PackageViewHolder> {
@@ -28,6 +30,10 @@ public class PackageModelAdapter extends RecyclerView.Adapter<PackageModelAdapte
     DbManager dbManager;
     public void setList(List<PackageModel> list) {
         this.list = list;
+    }
+
+    public List<PackageModel> getList() {
+        return list;
     }
 
     public PackageModelAdapter(Context context, List<PackageModel> list, DbManager dbManager) {
@@ -43,39 +49,46 @@ public class PackageModelAdapter extends RecyclerView.Adapter<PackageModelAdapte
         return new PackageViewHolder(view);
     }
 
-    @SuppressLint("WrongConstant")
+    @SuppressLint({"WrongConstant", "NotifyDataSetChanged"})
     @Override
     public void onBindViewHolder(@NonNull PackageViewHolder holder, int position) {
 
         holder.text.setText(list.get(position).getPack_name());
 
-//        holder.edit.setOnClickListener(view -> {
-//            try {
-//                Toast.makeText(context, String.valueOf(list.size()), Toast.LENGTH_SHORT).show();
-//                Toast.makeText(context, String.valueOf(dbManager.getPackageName().size()), Toast.LENGTH_SHORT).show();
-//
-//                int itemId = list.get(position).getPack_id();
-//
-//                dbManager.deleteItem(itemId);
-//
-//                list.remove(position);
-//
-//                notifyItemRemoved(position);
-////                notifyDataSetChanged();
-//
-//                Toast.makeText(context, String.valueOf(list.size()), Toast.LENGTH_SHORT).show();
-//                Toast.makeText(context, String.valueOf(dbManager.getPackageName().size()), Toast.LENGTH_SHORT).show();
-//            }catch (Exception e){
-//                Toast.makeText(context, String.valueOf(e.getMessage()), Toast.LENGTH_LONG).show();
-//            }
-//        });
-//        holder.text.setOnClickListener(view -> {
-//
-//            Intent intent = new Intent(context, Category.class);
-//            intent.putExtra("Package", list.get(position).getPack_name());
-//            context.startActivity(intent);
-//        });
+        holder.edit.setOnClickListener(view -> {
+            try {
+                dbManager.deleteItem(list.get(position).getPack_name());
+                list = getPackageFromDB();
 
+                MainActivity.updateAdapter();
+
+                if(dbManager.getPackageNamesList().isEmpty()) MainActivity.packageId = 0;
+
+            }catch (Exception e){
+                Toast.makeText(context, String.valueOf(e.getMessage()), Toast.LENGTH_LONG).show();
+            }
+        });
+        holder.text.setOnClickListener(view -> {
+
+            Intent intent = new Intent(context, Category.class);
+            intent.putExtra("Package", list.get(position).getPack_name());
+            context.startActivity(intent);
+        });
+
+
+
+    }
+    List<PackageModel> getPackageFromDB(){
+        List<PackageModel> dbNewList = new ArrayList<>();
+
+        List<String> dbBeforeList = dbManager.getPackageNamesList();
+
+
+        for(int i = 0; i < dbBeforeList.size(); i++){
+            dbNewList.add(new PackageModel(i, dbBeforeList.get(i)));
+        }
+
+        return dbNewList;
     }
 
     @Override

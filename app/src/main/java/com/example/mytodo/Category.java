@@ -1,8 +1,11 @@
 package com.example.mytodo;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,6 +20,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mytodo.Adapter.CategoryAdapter;
+import com.example.mytodo.DB.Constants;
+import com.example.mytodo.DB.DbManager;
 import com.example.mytodo.Model.PackageModel;
 
 import java.util.ArrayList;
@@ -24,15 +29,17 @@ import java.util.List;
 
 public class Category extends AppCompatActivity {
 
-    public  static Context context;
+    Context context;
 
-    static RecyclerView recycler;
-    static CategoryAdapter adapter;
-    static public List<PackageModel> list = new ArrayList<>();
+    RecyclerView recycler;
+    CategoryAdapter adapter;
 
-    public static TextView name;
+    DbManager dbManager;
 
-    static int x = 0;
+    public TextView name;
+    public int categoryId = 0;
+
+    int PC_ID_R;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -47,8 +54,8 @@ public class Category extends AppCompatActivity {
         });
 
         setUI();
-        setList();
-        setApplicationRecycle(list);
+        dbManager = new DbManager(context);
+        setApplicationRecycle(new ArrayList<>());
 
     }
     private void setUI(){
@@ -59,21 +66,23 @@ public class Category extends AppCompatActivity {
             name.setText(getIntent().getStringExtra("Package"));
         }catch (Exception e){Toast.makeText(context, "set UI", Toast.LENGTH_SHORT).show();}
     }
-//    public void addPackage(View v){
-//        AlertHelper.createAlert(context, "Добавить категорию");
-//    }
 
-    public static void createNewPackage(EditText userInput){
-        if(!userInput.getText().toString().isEmpty()){
-            list.add(new PackageModel(list.size()+1, userInput.getText().toString()));
-            try {
-                adapter.setList(list);
-                recycler.setAdapter(adapter);
-            } catch (Exception e) {}
-        }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        dbManager.openDb();
+
+        PC_ID_R = dbManager.getPackageId(name.getText().toString());
+        Toast.makeText(context, String.valueOf(PC_ID_R), Toast.LENGTH_SHORT).show();
+
+        updateAdapter();
     }
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dbManager.closeDb();
+    }
+//
     private void setApplicationRecycle(List<PackageModel> listApp) {
         try {
             GridLayoutManager layoutManagers = new GridLayoutManager(this, 1);
@@ -84,13 +93,83 @@ public class Category extends AppCompatActivity {
             Toast.makeText(this, "error in recycler", Toast.LENGTH_SHORT).show();
         }
     }
+    @SuppressLint("Range")
+    private  List<PackageModel> getCategoryFromDB(){
 
-    private void setList(){
-        if(x == 0){
-            list.add(new PackageModel(1, "Домой"));
-            list.add(new PackageModel(2, "Подарки"));
-            list.add(new PackageModel(3, "Разное"));
-            x = 1;
+        List<PackageModel> dbList = new ArrayList<>();
+        try {
+            categoryId = 0;
+            for(String s: dbManager.getCategoryNamesList(PC_ID_R)){
+                dbList.add(new PackageModel(categoryId++, s));
+            }
+
+        }catch (Exception e){
+            Toast.makeText(context, "error getCategoryFromDB", Toast.LENGTH_SHORT).show();
         }
+
+
+        return dbList;
     }
+
+    public void addCategory(View v){
+        View promptsView = LayoutInflater.from(context).inflate(R.layout.add_package, null);
+
+        TextView textView = promptsView.findViewById(R.id.alert_tital);
+        textView.setText("Добавить категорию");
+
+        final EditText userInput = (EditText) promptsView.findViewById(R.id.alert_text);
+
+        AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(context);
+        mDialogBuilder.setView(promptsView);
+
+        mDialogBuilder.setCancelable(false)
+                .setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+
+                        if(!userInput.getText().toString().isEmpty())
+                            addAllStructureCategory(userInput.getText().toString());
+                    }
+                })
+                .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {dialog.cancel();}});
+
+        AlertDialog alertDialog = mDialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.back_2);
+        alertDialog.show();
+    }
+    private void addAllStructureCategory(String text) {
+        try {
+
+            if(!isExistText(text)){
+                dbManager.insertToCategory(dbManager.getCategoryCount(), text, PC_ID_R);
+                updateAdapter();
+                Toast.makeText(context, String.valueOf(dbManager.getCategoryCount()), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "id: " + String.valueOf(categoryId) + "; text: " + text + "; pc_id: " + PC_ID_R, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, String.valueOf(dbManager.getCategoryNamesList(PC_ID_R).size()), Toast.LENGTH_SHORT).show();
+            }
+            else Toast.makeText(context, "Такая категория уже есть", Toast.LENGTH_SHORT).show();
+        }catch (Exception e){
+            Toast.makeText(context, "error add", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private boolean isExistText(String text){
+        try {
+            for(String name: dbManager.getCategoryNamesList(PC_ID_R)){
+                if((name.toLowerCase().trim()).equals(text.toLowerCase().trim())) return true;
+            }
+        }catch (Exception e){Toast.makeText(context, "error isExistText", Toast.LENGTH_SHORT).show();}
+        return false;
+    }
+
+
+    public void updateAdapter(){
+        try {
+            adapter.setList(getCategoryFromDB());
+            recycler.setAdapter(adapter);
+        }catch (Exception e){Toast.makeText(context, "error update", Toast.LENGTH_SHORT).show();}
+
+    }
+
 }

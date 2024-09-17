@@ -60,7 +60,7 @@
             android:layout_margin="25dp"
             android:background="@drawable/add_button"
             android:contentDescription="add"
-            android:onClick="addPackage" />
+            android:onClick="addCategory" />
 
     </FrameLayout>
 

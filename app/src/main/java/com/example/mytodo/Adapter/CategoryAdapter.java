@@ -53,7 +53,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         holder.text.setOnClickListener(view -> {
 
             Intent intent = new Intent(context, Record.class);
-            intent.putExtra("Package", Category.name.getText().toString());
+//            intent.putExtra("Package", );
             intent.putExtra("Category", list.get(position).getPack_name());
 
             context.startActivity(intent);
