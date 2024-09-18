@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mytodo.Adapter.CategoryAdapter;
-import com.example.mytodo.DB.Constants;
 import com.example.mytodo.DB.DbManager;
 import com.example.mytodo.Model.PackageModel;
 
@@ -29,17 +28,17 @@ import java.util.List;
 
 public class Category extends AppCompatActivity {
 
-    Context context;
+    static Context context;
 
-    RecyclerView recycler;
-    CategoryAdapter adapter;
+    static RecyclerView recycler;
+    static CategoryAdapter adapter;
 
-    DbManager dbManager;
+    static DbManager dbManager;
 
     public TextView name;
-    public int categoryId = 0;
+    public static int categoryId = 0;
 
-    int PC_ID_R;
+    public static int PC_ID_R;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -73,7 +72,7 @@ public class Category extends AppCompatActivity {
         dbManager.openDb();
 
         PC_ID_R = dbManager.getPackageId(name.getText().toString());
-        Toast.makeText(context, String.valueOf(PC_ID_R), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "PC_ID_R - " + String.valueOf(PC_ID_R), Toast.LENGTH_SHORT).show();
 
         updateAdapter();
     }
@@ -87,14 +86,14 @@ public class Category extends AppCompatActivity {
         try {
             GridLayoutManager layoutManagers = new GridLayoutManager(this, 1);
             recycler.setLayoutManager(layoutManagers);
-            adapter = new CategoryAdapter(this, listApp);
+            adapter = new CategoryAdapter(this, listApp, dbManager);
             recycler.setAdapter(adapter);
         } catch (Exception e) {
             Toast.makeText(this, "error in recycler", Toast.LENGTH_SHORT).show();
         }
     }
     @SuppressLint("Range")
-    private  List<PackageModel> getCategoryFromDB(){
+    private static List<PackageModel> getCategoryFromDB(){
 
         List<PackageModel> dbList = new ArrayList<>();
         try {
@@ -141,11 +140,11 @@ public class Category extends AppCompatActivity {
         try {
 
             if(!isExistText(text)){
-                dbManager.insertToCategory(dbManager.getCategoryCount(), text, PC_ID_R);
+                dbManager.insertToCategory(dbManager.getCategoryLastIndex(), text, PC_ID_R);
                 updateAdapter();
-                Toast.makeText(context, String.valueOf(dbManager.getCategoryCount()), Toast.LENGTH_SHORT).show();
-                Toast.makeText(context, "id: " + String.valueOf(categoryId) + "; text: " + text + "; pc_id: " + PC_ID_R, Toast.LENGTH_SHORT).show();
-                Toast.makeText(context, String.valueOf(dbManager.getCategoryNamesList(PC_ID_R).size()), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "last index - " + String.valueOf(dbManager.getCategoryLastIndex()), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "id: " + String.valueOf(dbManager.getCategoryLastIndex()) + "; text: " + text + "; pc_id: " + PC_ID_R, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "count category -" + String.valueOf(dbManager.getCategoryNamesList(PC_ID_R).size()), Toast.LENGTH_SHORT).show();
             }
             else Toast.makeText(context, "Такая категория уже есть", Toast.LENGTH_SHORT).show();
         }catch (Exception e){
@@ -164,12 +163,11 @@ public class Category extends AppCompatActivity {
     }
 
 
-    public void updateAdapter(){
+    public static void updateAdapter(){
         try {
             adapter.setList(getCategoryFromDB());
             recycler.setAdapter(adapter);
         }catch (Exception e){Toast.makeText(context, "error update", Toast.LENGTH_SHORT).show();}
-
     }
 
 }

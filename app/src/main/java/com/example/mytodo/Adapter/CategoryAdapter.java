@@ -1,5 +1,6 @@
 package com.example.mytodo.Adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -7,29 +8,35 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mytodo.Category;
+import com.example.mytodo.DB.DbManager;
+import com.example.mytodo.MainActivity;
 import com.example.mytodo.Model.PackageModel;
 import com.example.mytodo.R;
 import com.example.mytodo.Record;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
 
     Context context;
     List<PackageModel> list;
+    DbManager dbManager;
 
     public void setList(List<PackageModel> list) {
         this.list = list;
     }
 
-    public CategoryAdapter(Context context, List<PackageModel> list) {
+    public CategoryAdapter(Context context, List<PackageModel> list, DbManager dbManager) {
         this.context = context;
         this.list = list;
+        this.dbManager = dbManager;
     }
 
     @NonNull
@@ -45,20 +52,41 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         holder.text.setText(list.get(position).getPack_name());
 
         holder.edit.setOnClickListener(view -> {
+            try {
+                dbManager.deleteCategory(list.get(position).getPack_name());
+                list = getCategoryFromDB();
 
-            list.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, list.size());
+                Category.updateAdapter();
+
+                if(dbManager.getPackageNamesList().isEmpty()) Category.categoryId = 0;
+
+            }catch (Exception e){
+                Toast.makeText(context, String.valueOf(e.getMessage()), Toast.LENGTH_LONG).show();
+            }
         });
         holder.text.setOnClickListener(view -> {
 
-            Intent intent = new Intent(context, Record.class);
-//            intent.putExtra("Package", );
-            intent.putExtra("Category", list.get(position).getPack_name());
-
+            Intent intent = new Intent(context, Category.class);
+            intent.putExtra("Package", list.get(position).getPack_name());
             context.startActivity(intent);
         });
 
+
+
+    }
+    private  List<PackageModel> getCategoryFromDB() {
+
+        List<PackageModel> dbList = new ArrayList<>();
+        try {
+            List<String> dbBeforeList = dbManager.getCategoryNamesList(Category.PC_ID_R);
+            for (int i = 0; i < dbBeforeList.size(); i++) {
+                dbList.add(new PackageModel(i, dbBeforeList.get(i)));
+            }
+        } catch (Exception e) {
+            Toast.makeText(context, "error getCategoryFromDB", Toast.LENGTH_SHORT).show();
+        }
+
+        return dbList;
     }
 
     @Override

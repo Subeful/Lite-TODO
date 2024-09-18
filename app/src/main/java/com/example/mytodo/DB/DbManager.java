@@ -23,12 +23,23 @@ public class DbManager {
 
     public void openDb(){
         database = dbHelper.getWritableDatabase();
-    }public void closeDb(){
+    }
+    public void closeDb(){
         database.close();
     }
 
-    public void deleteItem(String itemId) {
+    public void deletePackageAndHisCategoryAndRecord(String itemId) {
         database.execSQL("delete from " + Constants.PACkAGE + " where " + Constants.PC_NAME + " = '" + itemId + "'");
+        database.execSQL("delete from " + Constants.CATEGORY + " where " + Constants.PC_ID_R + " = " + getPackageId(itemId));
+
+        database.execSQL("DELETE FROM " + Constants.RECORD + " WHERE " + Constants.RC_ID + " IN (SELECT "
+                + Constants.RC_ID + " FROM " + Constants.CATEGORY + " JOIN " + Constants.RECORD + " ON "
+                + Constants.CG_ID + " = " + Constants.CG_ID_R + " WHERE " + Constants.PC_ID_R + " = "
+                + getPackageId(itemId) + ")");
+    }
+
+    public void deleteCategory(String itemId) {
+        database.execSQL("delete from " + Constants.CATEGORY + " where " + Constants.CG_NAME + " = '" + itemId +"'");
     }
 
 
@@ -58,37 +69,14 @@ public class DbManager {
         return -1;
     }
 
-//    public List<String> getCategoryNamesList(String name){
-//        List<String> packageList = new ArrayList<>();
-//        if (getPackageId(name) != -1) {
-//            try (Cursor cursor = database.rawQuery("select * from " + Constants.CATEGORY +
-//                    " where " + Constants.PC_ID_R + " = ?", new String[]{String.valueOf(getPackageId(name))})) {
-//                if (cursor.moveToFirst()){
-//                    while (cursor.moveToNext()) {
-//                        packageList.add(cursor.getString(cursor.getColumnIndex(Constants.PC_NAME)));
-//                    }
-//                }
-//            } catch (Exception e) {
-//                Toast.makeText(context, "Error getting category names: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//            }
-//        }
-//        return packageList;
-//    }
-//    public List<String> getCategoryNamesList(String name){
-//        List<String> packageList = new ArrayList<>();
-//        Cursor cursor = database.rawQuery("select * from " + Constants.CATEGORY + " where " + Constants.PC_ID_R.trim() + " = " + String.valueOf(getPackageId(name.trim())), null);
-//
-//
-//        while (cursor.moveToNext())
-//            packageList.add(cursor.getString(cursor.getColumnIndex(Constants.CG_NAME)));
-//
-//        cursor.close();
-//        return packageList;
-//    }
+
+
+
 
     public List<String> getCategoryNamesList(int id){
         List<String> packageList = new ArrayList<>();
-        Cursor cursor = database.rawQuery("select * from " + Constants.CATEGORY + " where " + Constants.PC_ID_R + " = " + String.valueOf(id), null);
+        Cursor cursor = database.rawQuery("select * from " + Constants.CATEGORY + " where " + Constants.PC_ID_R + " in " +
+                "(select " + Constants.PC_ID + " from " + Constants.PACkAGE + " where " + Constants.PC_NAME + " = '" + getPackageName(id) + "')", null);
 
 
         while (cursor.moveToNext())
@@ -140,11 +128,11 @@ public class DbManager {
     }
 
 
-    public int getCategoryCount(){
-        Cursor cursor = database.rawQuery("select count(*) from " + Constants.CATEGORY, null);
+    public int getCategoryLastIndex(){
+        Cursor cursor = database.rawQuery("select max("+Constants.CG_ID+") from " + Constants.CATEGORY, null);
 
         if(cursor.moveToFirst())
-            return cursor.getInt(0);
+            return cursor.getInt(0)+1;
 
         cursor.close();
         return 100;

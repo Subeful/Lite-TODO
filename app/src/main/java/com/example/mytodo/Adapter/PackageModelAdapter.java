@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mytodo.Category;
-import com.example.mytodo.DB.DbHelper;
 import com.example.mytodo.DB.DbManager;
 import com.example.mytodo.MainActivity;
 import com.example.mytodo.Model.PackageModel;
@@ -57,7 +56,7 @@ public class PackageModelAdapter extends RecyclerView.Adapter<PackageModelAdapte
 
         holder.edit.setOnClickListener(view -> {
             try {
-                dbManager.deleteItem(list.get(position).getPack_name());
+                dbManager.deletePackageAndHisCategoryAndRecord(list.get(position).getPack_name());
                 list = getPackageFromDB();
 
                 MainActivity.updateAdapter();
