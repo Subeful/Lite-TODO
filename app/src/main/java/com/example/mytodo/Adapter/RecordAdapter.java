@@ -1,7 +1,9 @@
 package com.example.mytodo.Adapter;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mytodo.DB.DbManager;
+import com.example.mytodo.MainActivity;
 import com.example.mytodo.Model.PackageModel;
 import com.example.mytodo.R;
 import com.example.mytodo.Record;
@@ -52,38 +55,55 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordView
         holder.text.setText(dbManager.getRecordText(list.get(position).getPack_id()));
 
         holder.edit.setOnClickListener(view -> {
-            try {
-                dbManager.deleteRecord(list.get(position).getPack_name());
-                list = getRecordFromDB();
-
-                Record.updateAdapter();
-
-                if(dbManager.getPackageNamesList().isEmpty()) Record.recordId = 0;
-
-            }catch (Exception e){
-                Toast.makeText(context, String.valueOf(e.getMessage()), Toast.LENGTH_LONG).show();
-            }
+            setAlertForDeletePackage(position);
         });
 
         holder.text.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
             public void afterTextChanged(Editable editable) {
-//                dbManager.updateRecordText(dbManager.getI);
+                dbManager.updateRecordText(list.get(position).getPack_id(), editable.toString());
             }
         });
 
         
 
+    }
+
+    private void deleteRecordFromDB(int position){
+        try {
+            dbManager.deleteRecord(list.get(position).getPack_name());
+            list = getRecordFromDB();
+
+            Record.updateAdapter();
+
+            if(dbManager.getPackageNamesList().isEmpty()) Record.recordId = 0;
+
+        }catch (Exception e){
+            Toast.makeText(context, String.valueOf(e.getMessage()), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void setAlertForDeletePackage(int position){
+        AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(context, R.style.AlertDialogTheme);
+
+        mDialogBuilder.setTitle("Удаление записи")
+                .setMessage("Вы хотите удалить запись: \"" + list.get(position).getPack_name() + "\"").setCancelable(false)
+                .setPositiveButton("Удалить", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        deleteRecordFromDB(position);
+                    }
+                })
+                .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {dialog.cancel();}});
+
+        AlertDialog alertDialog = mDialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.back_2);
+        alertDialog.show();
     }
     private List<PackageModel> getRecordFromDB(){
 

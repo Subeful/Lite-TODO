@@ -88,9 +88,6 @@ public class Record extends AppCompatActivity {
         PC_ID_R = dbManager.getPackageId(packageName);
         CG_ID_R = dbManager.getCategoryId(categoryName);
 
-        Toast.makeText(context, "PC_ID_R: " + String.valueOf(PC_ID_R) +
-                "\nCG_ID_R: " + String.valueOf(CG_ID_R), Toast.LENGTH_SHORT).show();
-
         updateAdapter();
     }
     @Override
@@ -162,7 +159,6 @@ public class Record extends AppCompatActivity {
                 dbManager.insertToRecord(index, text, CG_ID_R);
                 dbManager.updateRecordText(index, text);
                 updateAdapter();
-                Toast.makeText(context, "id:  " + String.valueOf(index) + ";  " + dbManager.getRecordText(index) + ";  " + CG_ID_R, Toast.LENGTH_LONG).show();
             }
             else Toast.makeText(context, "Такая категория уже есть", Toast.LENGTH_SHORT).show();
         }catch (Exception e){

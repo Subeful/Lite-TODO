@@ -1,7 +1,9 @@
 package com.example.mytodo.Adapter;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,18 +57,9 @@ public class PackageModelAdapter extends RecyclerView.Adapter<PackageModelAdapte
         holder.text.setText(list.get(position).getPack_name());
 
         holder.edit.setOnClickListener(view -> {
-            try {
-                dbManager.deletePackageAndHisCategoryAndRecord(list.get(position).getPack_name());
-                list = getPackageFromDB();
-
-                MainActivity.updateAdapter();
-
-                if(dbManager.getPackageNamesList().isEmpty()) MainActivity.packageId = 0;
-
-            }catch (Exception e){
-                Toast.makeText(context, String.valueOf(e.getMessage()), Toast.LENGTH_LONG).show();
-            }
+            setAlertForDeletePackage(position);
         });
+
         holder.text.setOnClickListener(view -> {
 
             Intent intent = new Intent(context, Category.class);
@@ -76,6 +69,35 @@ public class PackageModelAdapter extends RecyclerView.Adapter<PackageModelAdapte
 
 
 
+    }
+    private void deletePackageFromDB(int position){
+        try {
+            dbManager.deletePackageAndHisCategoryAndRecord(list.get(position).getPack_name());
+
+            list = getPackageFromDB();
+            MainActivity.updateAdapter();
+
+            if(dbManager.getPackageNamesList().isEmpty()) MainActivity.packageId = 0;
+
+        }catch (Exception e){Toast.makeText(context, String.valueOf(e.getMessage()), Toast.LENGTH_LONG).show();}
+    }
+
+    public void setAlertForDeletePackage(int position){
+        AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(context, R.style.AlertDialogTheme);
+
+        mDialogBuilder.setTitle("Удаление папки")
+                .setMessage("Вы хотите удалить папку: \"" + list.get(position).getPack_name() + "\" и все категории в ней?").setCancelable(false)
+                .setPositiveButton("Удалить", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        deletePackageFromDB(position);
+                    }
+                })
+                .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {dialog.cancel();}});
+
+        AlertDialog alertDialog = mDialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.back_2);
+        alertDialog.show();
     }
     List<PackageModel> getPackageFromDB(){
         List<PackageModel> dbNewList = new ArrayList<>();

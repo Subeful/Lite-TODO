@@ -1,11 +1,14 @@
 package com.example.mytodo.Adapter;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,18 +55,9 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         holder.text.setText(list.get(position).getPack_name());
 
         holder.edit.setOnClickListener(view -> {
-            try {
-                dbManager.deleteCategory(list.get(position).getPack_name());
-                list = getCategoryFromDB();
-
-                Category.updateAdapter();
-
-                if(dbManager.getPackageNamesList().isEmpty()) Category.categoryId = 0;
-
-            }catch (Exception e){
-                Toast.makeText(context, String.valueOf(e.getMessage()), Toast.LENGTH_LONG).show();
-            }
+            setAlertForDeleteCategory(position);
         });
+
         holder.text.setOnClickListener(view -> {
 
             Intent intent = new Intent(context, Record.class);
@@ -77,6 +71,38 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
 
     }
+
+    private void deleteCategoryFromDB(int position){
+        try {
+            dbManager.deleteCategory(list.get(position).getPack_name());
+
+            list = getCategoryFromDB();
+            Category.updateAdapter();
+
+            if(dbManager.getPackageNamesList().isEmpty()) Category.categoryId = 0;
+
+        }catch (Exception e){Toast.makeText(context, String.valueOf(e.getMessage()), Toast.LENGTH_LONG).show();}
+    }
+
+    @SuppressLint({"NewApi", "ResourceAsColor"})
+    public void setAlertForDeleteCategory(int position){
+        AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(context, R.style.AlertDialogTheme);
+
+        mDialogBuilder.setTitle("Удаление категории")
+                .setMessage("Вы хотите удалить категорию: \"" + list.get(position).getPack_name() + "\" и все записи в ней?").setCancelable(false)
+                .setPositiveButton("Удалить", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                        deleteCategoryFromDB(position);
+                    }
+                })
+                .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {dialog.cancel();}});
+
+        AlertDialog alertDialog = mDialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.back_2);
+        alertDialog.show();
+    }
+
     private  List<PackageModel> getCategoryFromDB() {
 
         List<PackageModel> dbList = new ArrayList<>();

@@ -142,7 +142,6 @@ public void addPackage(View v){
         if(!isExistTextInBd(text)){
             dbManager.insertToPackage(packageId, text);
             updateAdapter();
-            Toast.makeText(context, "id: " + String.valueOf(packageId-1) + "\ntext: " + text, Toast.LENGTH_SHORT).show();
         }
         else Toast.makeText(context, "Такая папка уже есть", Toast.LENGTH_SHORT).show();
 

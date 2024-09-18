@@ -72,7 +72,6 @@ public class Category extends AppCompatActivity {
         dbManager.openDb();
 
         PC_ID_R = dbManager.getPackageId(name.getText().toString());
-        Toast.makeText(context, "PC_ID_R - " + String.valueOf(PC_ID_R), Toast.LENGTH_SHORT).show();
 
         updateAdapter();
     }
@@ -142,9 +141,6 @@ public class Category extends AppCompatActivity {
             if(!isExistText(text)){
                 dbManager.insertToCategory(dbManager.getCategoryLastIndex(), text, PC_ID_R);
                 updateAdapter();
-                Toast.makeText(context, "last index - " + String.valueOf(dbManager.getCategoryLastIndex()), Toast.LENGTH_SHORT).show();
-                Toast.makeText(context, "id: " + String.valueOf(dbManager.getCategoryLastIndex()) + "; text: " + text + "; pc_id: " + PC_ID_R, Toast.LENGTH_LONG).show();
-                Toast.makeText(context, "count category -" + String.valueOf(dbManager.getCategoryNamesList(PC_ID_R).size()), Toast.LENGTH_SHORT).show();
             }
             else Toast.makeText(context, "Такая категория уже есть", Toast.LENGTH_SHORT).show();
         }catch (Exception e){
