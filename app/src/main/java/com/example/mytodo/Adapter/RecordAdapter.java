@@ -2,9 +2,6 @@ package com.example.mytodo.Adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.Preference;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -12,33 +9,34 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.mytodo.Category;
+import com.example.mytodo.DB.DbManager;
 import com.example.mytodo.Model.PackageModel;
 import com.example.mytodo.R;
 import com.example.mytodo.Record;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordViewHolder> {
 
     Context context;
     List<PackageModel> list;
-
-
+    DbManager dbManager;
 
     public void setList(List<PackageModel> list) {
         this.list = list;
     }
 
-    public RecordAdapter(Context context, List<PackageModel> list) {
+    public RecordAdapter(Context context, List<PackageModel> list, DbManager dbManager) {
         this.context = context;
         this.list = list;
+        this.dbManager = dbManager;
     }
 
     @NonNull
@@ -51,17 +49,54 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordView
     @Override
     public void onBindViewHolder(@NonNull RecordViewHolder holder, @SuppressLint("RecyclerView") int position) {
 
+        holder.text.setText(dbManager.getRecordText(list.get(position).getPack_id()));
 
         holder.edit.setOnClickListener(view -> {
             try {
-                list.remove(position);
-                notifyItemRemoved(position);
-                notifyItemRangeChanged(position, list.size());
-            }catch (Exception e){}
+                dbManager.deleteRecord(list.get(position).getPack_name());
+                list = getRecordFromDB();
+
+                Record.updateAdapter();
+
+                if(dbManager.getPackageNamesList().isEmpty()) Record.recordId = 0;
+
+            }catch (Exception e){
+                Toast.makeText(context, String.valueOf(e.getMessage()), Toast.LENGTH_LONG).show();
+            }
+        });
+
+        holder.text.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+//                dbManager.updateRecordText(dbManager.getI);
+            }
         });
 
         
 
+    }
+    private List<PackageModel> getRecordFromDB(){
+
+        List<PackageModel> dbList = new ArrayList<>();
+        try {
+            Map<Integer, String> dbBeforeList = dbManager.getRecordNamesAndIdList(Record.CG_ID_R);
+            for (Map.Entry<Integer, String> map: dbBeforeList.entrySet()) {
+                dbList.add(new PackageModel(map.getKey(), map.getValue()));
+            }
+
+        }catch (Exception e){Toast.makeText(context, "error getCategoryFromDB", Toast.LENGTH_SHORT).show();}
+
+        return dbList;
     }
 
     @Override

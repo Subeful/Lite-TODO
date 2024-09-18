@@ -66,8 +66,11 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         });
         holder.text.setOnClickListener(view -> {
 
-            Intent intent = new Intent(context, Category.class);
-            intent.putExtra("Package", list.get(position).getPack_name());
+            Intent intent = new Intent(context, Record.class);
+
+            intent.putExtra("Package", dbManager.getPackageName(Category.PC_ID_R));
+            intent.putExtra("Category", list.get(position).getPack_name());
+
             context.startActivity(intent);
         });
 

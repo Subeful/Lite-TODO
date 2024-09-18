@@ -4,7 +4,7 @@ import com.example.mytodo.Record;
 
 public class Constants {
     public static final String DB_NAME = "todo.db";
-    public static final int DB_VERSION = 9;
+    public static final int DB_VERSION = 10;
 
     public static final String PACkAGE = "Package";
 

@@ -15,19 +15,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/sand">
+
             <EditText
                 android:id="@+id/PackageModelText"
                 android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
                 android:layout_weight="8"
-                android:layout_height="wrap_content"
-                android:text="Планы"
                 android:background="@android:color/transparent"
                 android:fontFamily="@font/inter"
+                android:gravity="center|left"
+                android:hint="@string/app_name"
+                android:paddingHorizontal="18dp"
                 android:textColor="@color/darkGreen"
                 android:textSize="18sp"
-                android:layout_gravity="center"
-                android:gravity="center|left"
-                android:paddingHorizontal="18dp"/>
+                tools:ignore="TouchTargetSizeCheck" />
 
             <ImageButton
                 android:id="@+id/PackageModelEdit"
